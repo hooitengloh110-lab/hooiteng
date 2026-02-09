@@ -7,9 +7,12 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PrimeVue Core -->
+    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
+
 </head>
 <body class="p-6 bg-gray-50">
-<div id="app" class="relative max-w-xl mx-auto bg-white p-6 rounded shadow">
+<div id="app" class="relative mx-auto bg-white p-6 rounded shadow">
 
     <h1 class="text-2xl font-bold mb-6 text-center">Math Calculation App</h1>
 
@@ -29,26 +32,46 @@
     <div v-if="tab==='primes'">
         <form @submit.prevent="getPrimes">
             <label class="block mb-2 font-semibold">Limit:</label>
-            <input type="number" v-model.number="primeLimit" class="border p-2 rounded w-full mb-4" min="2" max="100000">
-            <button :disabled="loading" class="bg-blue-900 text-white px-4 py-2 rounded">Calculate</button>
+            <input type="number" v-model.number="primeLimit" class="border p-2 rounded w-80 mb-4" min="2" max="100000">
+            <button :disabled="loading" class="bg-blue-900 text-white px-4 py-2 rounded ml-3">Calculate</button>
         </form>
         <div v-if="errorP" class="mt-4 text-red-500">@{{ errorP }}</div>
 
         <!-- Result -->
-        <div v-if="primes.length" class="mt-4 break-words">
+        <div v-if="primes.length" class="mt-4 break-words mb-4">
             <div class="font-semibold mb-3">Result : </div>
             <span v-for="(num, index) in primes" :key="index" class="inline-block bg-gray-200 px-2 py-1 rounded mr-1 mb-1">
                 @{{ num }}
             </span>
         </div>
+
+        <button @click="getPrimesAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Primes</button>
+
+        <table class="border-collapse border border-gray-400 w-full">
+            <thead>
+            <tr class="bg-gray-200">
+                <!-- <th class="border border-gray-400 px-2 py-1">ID</th> -->
+                <th class="border border-gray-400 px-2 py-1">Prime</th>
+                <th class="border border-gray-400 px-2 py-1">Result</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="prime in primesAll" :key="prime.id">
+                <!-- <td class="border border-gray-400 px-2 py-1">@{{ prime.id }}</td> -->
+                <td class="border border-gray-400 px-2 py-1">@{{ prime.value }}</td>
+                <td class="border border-gray-400 px-2 py-1">@{{ prime.result.join(', ') }}</td>
+            </tr>
+            </tbody>
+        </table>
+        
     </div>
 
     <!-- Fibonacci Tab -->
     <div v-if="tab==='fibonacci'">
         <form @submit.prevent="getFibonacci">
             <label class="block mb-2 font-semibold">N:</label>
-            <input type="number" v-model.number="fibN" class="border p-2 rounded w-full mb-4" max=92>
-            <button @click="getFibonacci" class="bg-blue-900 text-white px-4 py-2 rounded">Calculate</button>
+            <input type="number" v-model.number="fibN" class="border p-2 rounded w-80 mb-4" max=92>
+            <button @click="getFibonacci" class="bg-blue-900 text-white px-4 py-2 rounded ml-3">Calculate</button>
         </form>
         <div v-if="errorF" class="mt-4 text-red-500">@{{ errorF }}</div>
 
@@ -66,12 +89,40 @@
         <div v-if="iterValue.length" class="mt-4 break-words">
             <span class="font-semibold">Iterative : </span>@{{ iterValue }}
         </div>
-        <div v-if="iterList.length" class="mt-4 break-words">
+        <div v-if="iterList.length" class="mt-4 break-words mb-4">
             <span v-for="(num, index) in iterList" :key="index" class="inline-block bg-gray-200 px-2 py-1 rounded mr-1 mb-1">
                 @{{ num }}
             </span>
         </div>
+
+        <button @click="getFibonacciAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Fibonacci</button>
+
+        <table class="border-collapse border border-gray-400 w-full">
+            <thead>
+            <tr class="bg-gray-200">
+                <!-- <th class="border border-gray-400 px-2 py-1">ID</th> -->
+                <th class="border border-gray-400 px-2 py-1">Fibonacci</th>
+                <th class="border border-gray-400 px-2 py-1">Recursive Value</th>
+                <th class="border border-gray-400 px-2 py-1">Recursive List</th>
+                <th class="border border-gray-400 px-2 py-1">Iterative Value</th>
+                <th class="border border-gray-400 px-2 py-1">Iterative List</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="fib in fibonacciAll" :key="fib.id">
+                <!-- <td class="border border-gray-400 px-2 py-1">@{{ fib.id }}</td> -->
+                <td class="border border-gray-400 px-2 py-1">@{{ fib.value }}</td>
+                <td class="border border-gray-400 px-2 py-1">@{{ fib.recursive.value }}</td>
+                <td class="border border-gray-400 px-2 py-1">@{{ fib.recursive.list.join(', ') }}</td>
+                <td class="border border-gray-400 px-2 py-1">@{{ fib.iterative.value }}</td>
+                <td class="border border-gray-400 px-2 py-1">@{{ fib.iterative.list.join(', ') }}</td>
+            </tr>
+            </tbody>
+        </table>
+
     </div>
+
+
 
     <div v-if="loading" class="absolute inset-0 bg-white/70 flex items-center justify-center rounded">
         <svg class="animate-spin h-10 w-10 text-blue-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -84,10 +135,10 @@
 
 <script>
 
-
 const { createApp, ref } = Vue;
 
-createApp({
+const app = createApp({
+    // components: { DataTable, Column, Button },
     setup() {
         const tab = ref('primes');
         const primeLimit = ref(50);
@@ -102,6 +153,51 @@ createApp({
         const errorP = ref('');
         const errorF = ref('');
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        
+        // Primes
+        const primesAll = ref([]);
+        const primePage = ref(1);
+        const primeTotal = ref(0);
+
+        // Fibonacci
+        const fibonacciAll = ref([]);
+        const fibPage = ref(1);
+        const fibTotal = ref(0);
+
+        const getPrimesAll = async () => {
+            try {
+                const res = await axios.get('/api/math/all', {
+                    params: { prime_page: primePage.value, per_page: 10 }
+                });
+                primesAll.value = res.data.primes.data;
+                primeTotal.value = res.data.primes.total;
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        const getFibonacciAll = async () => {
+            try {
+                const res = await axios.get('/api/math/all', {
+                    params: { fib_page: fibPage.value, per_page: 10 }
+                });
+                fibonacciAll.value = res.data.fibonacci.data;console.log("Test : ", fibonacciAll.value);
+                fibTotal.value = res.data.fibonacci.total;
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        const primeListTemplate = (row) => row.list.join(', ');
+        const fibListTemplate = (row) => row.list.join(', ');
+
+        const onPrimePage = (event) => {
+            primePage.value = event.first / event.rows + 1;
+            getPrimesAll();
+        };
+        const onFibPage = (event) => {
+            fibPage.value = event.first / event.rows + 1;
+            getFibonacciAll();
+        };
 
         const getPrimes = async () => {
             loading.value = true;
@@ -165,10 +261,13 @@ createApp({
             errorP,
             errorF,
             getPrimes,
-            getFibonacci
+            getFibonacci,
+            primesAll, primePage, primeTotal, getPrimesAll, primeListTemplate, onPrimePage,
+            fibonacciAll, fibPage, fibTotal, getFibonacciAll, fibListTemplate, onFibPage
         };
     }
-}).mount('#app');
+});
+app.mount('#app');
 
 </script>
 
