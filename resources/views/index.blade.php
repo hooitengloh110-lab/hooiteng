@@ -7,8 +7,6 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PrimeVue Core -->
-    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
 
 </head>
 <body class="p-6 bg-gray-50">
@@ -45,6 +43,7 @@
             </span>
         </div>
 
+        <!-- Primes Table -->
         <button @click="getPrimesAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Primes</button>
 
         <table v-if="primesAll.length" class="border-collapse border border-gray-400 w-full">
@@ -97,6 +96,7 @@
             </span>
         </div>
 
+        <!-- Fibonacci Table -->
         <button @click="getFibonacciAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Fibonacci</button>
 
         <table v-if="fibonacciAll.length" class="border-collapse border border-gray-400 w-full">
@@ -138,7 +138,7 @@
 
             <div class="px-4 py-3 border-t text-right">
                 <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" @click="showNoRecordModal = false">
-                    OK
+                    Close
                 </button>
             </div>
         </div>
@@ -218,17 +218,6 @@ const app = createApp({
             } finally {
                 loading.value = false;
             }
-        };
-        const primeListTemplate = (row) => row.list.join(', ');
-        const fibListTemplate = (row) => row.list.join(', ');
-
-        const onPrimePage = (event) => {
-            primePage.value = event.first / event.rows + 1;
-            getPrimesAll();
-        };
-        const onFibPage = (event) => {
-            fibPage.value = event.first / event.rows + 1;
-            getFibonacciAll();
         };
 
         const formatDate = (utc) => {
@@ -311,8 +300,8 @@ const app = createApp({
             formatDate,
             showNoRecordModal,
 
-            primesAll, primePage, primeTotal, getPrimesAll, primeListTemplate, onPrimePage,
-            fibonacciAll, fibPage, fibTotal, getFibonacciAll, fibListTemplate, onFibPage
+            primesAll, primePage, primeTotal, getPrimesAll,
+            fibonacciAll, fibPage, fibTotal, getFibonacciAll,
         };
     }
 });

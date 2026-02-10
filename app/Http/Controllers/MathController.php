@@ -9,6 +9,7 @@ use App\Models\Fibonacci as Fib;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class MathController extends Controller
 {
@@ -22,7 +23,13 @@ class MathController extends Controller
             return response()->json(['error' => 'Limit too large (MAX 100000 for Primes)'], 400);
         }
 
-        $result = $primeSieve->generate((int)$limit); 
+        $cacheKey = "primes:limit={$limit}";
+        $ttl = now()->addMinutes(10);
+
+        $result = Cache::remember($cacheKey, $ttl, function () use ($primeSieve, $limit) {
+            return $primeSieve->generate((int)$limit);
+        });
+
         $data = Primes::where('value', $limit)->whereNull('deleted_at')->orderBy('id','desc')->first();
         if (!$data) {
             $data = new Primes;
@@ -49,7 +56,6 @@ class MathController extends Controller
 
         $recursive = $fibonacci->nthFib($n);
         $iterative = $fibonacci->nthFibIterative($n);
-        Log::info("Result");
 
         $data = Fib::where('value', (int)$n)->whereNull('deleted_at')->orderBy('id', 'desc')->first();
         if(!$data) {
