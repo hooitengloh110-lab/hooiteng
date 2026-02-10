@@ -12,6 +12,10 @@ Route::prefix('math')->group(function () {
         Route::get('/', [MathController::class, 'fibonacci']);
     });
 
+    Route::prefix('multiple')->group(function () {
+        route::get('/', [MathController::class, 'multiple']);
+    });
+
     Route::get('/all', [MathController::class, 'getList']);
 });
 

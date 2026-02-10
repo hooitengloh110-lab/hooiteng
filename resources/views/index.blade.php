@@ -21,8 +21,12 @@
             Primes
         </button>
         <button @click="tab='fibonacci'" :class="tab==='fibonacci' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-4 py-2 rounded-r transition-colors">
+                class="px-4 py-2 transition-colors">
             Fibonacci
+        </button>
+        <button @click="tab='multiple'" :class="tab==='multiple' ? 'bg-slate-500 text-white' : 'bg-gray-200 text-gray-700'"
+                class="px-4 py-2 rounded-r transition-colors">
+            Multiple
         </button>
     </div>
 
@@ -126,6 +130,25 @@
 
     </div>
 
+    <div v-if="tab==='multiple'">
+        <form @submit.prevent="getMultiple">
+            <label class="block mb-2 font-semibold">Input:</label>
+            <input type="number" v-model.number="multipleLimit" class="border p-2 rounded w-80 mb-4" min="2" max="100000">
+            <input type="number" v-model.number="multipleLimit2" class="border p-2 rounded w-80 mb-4" min="2" max="100000">
+            <button :disabled="loading" class="bg-blue-900 text-white px-4 py-2 rounded ml-3">Calculate</button>
+        </form>
+        <div v-if="errorM" class="mt-4 text-red-500">@{{ errorM }}</div>
+
+        <!-- Result -->
+        <div v-if="multiple" class="mt-4 break-words mb-4">
+            <div class="font-semibold mb-3">Result : </div>
+            <span class="inline-block bg-gray-200 px-2 py-1 rounded mr-1 mb-1">
+                @{{ multiple }}
+            </span>
+        </div>
+        
+    </div>
+
     <div v-if="showNoRecordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click="showNoRecordModal = false">
         <div class="bg-white rounded-lg w-96 shadow-lg">
             <div class="px-4 py-3 border-b">
@@ -171,8 +194,13 @@ const app = createApp({
         const loading = ref(false);
         const errorP = ref('');
         const errorF = ref('');
+        const errorM = ref('');
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
         const showNoRecordModal = ref(false);
+
+        const multiple = ref('');
+        const multipleLimit = ref('');
+        const multipleLimit2 = ref('');
         
         // Primes
         const primesAll = ref([]);
@@ -282,6 +310,28 @@ const app = createApp({
             }
         };
 
+        const getMultiple = async () => {
+            loading.value = true;
+            errorM.value = '';
+            multiple.value = '';
+
+            try {
+                const res = await axios.get('/api/math/multiple', {
+                    params: { 
+                        num: multipleLimit.value,
+                        num2: multipleLimit2.value
+                    }
+                });
+                multiple.value = res.data.multiple;
+            } catch (err) {
+                errorM.value = err.response?.data?.error || 'API Error';
+            } finally {
+                await sleep(300);    
+                loading.value = false;
+                
+            }
+        };
+
         return {
             tab,
             primeLimit,
@@ -293,10 +343,15 @@ const app = createApp({
             iterList,
             getPrimes,
             getFibonacci,
+            multiple,
+            multipleLimit,
+            multipleLimit2,
+            getMultiple,
 
             loading,
             errorP,
             errorF,
+            errorM,
             formatDate,
             showNoRecordModal,
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Algorithms\PrimeSieve;
 use App\Algorithms\Fibonacci;
+use App\Algorithms\Multiple;
 use App\Models\Primes;
 use App\Models\Fibonacci as Fib;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,23 @@ class MathController extends Controller
             'n' => (int)$n,
             'recursive' => $recursive,
             'iterative' => $iterative,
+        ]);
+    }
+
+    public function multiple(Request $request, Multiple $multiple) {
+        $num = $request->num;
+        $num2 = $request->num2;
+
+        if(!$num || !$num2) {
+            return response()->json(['error' => 'Please insert !'], 400);
+        }
+
+        $mul = $multiple->generate($num, $num2);
+
+        return response()->json([
+            'num' => (int)$num,
+            'num2' => (int)$num2,
+            'multiple' => $mul
         ]);
     }
 
