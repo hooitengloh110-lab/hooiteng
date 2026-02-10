@@ -47,19 +47,21 @@
 
         <button @click="getPrimesAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Primes</button>
 
-        <table class="border-collapse border border-gray-400 w-full">
+        <table v-if="primesAll.length" class="border-collapse border border-gray-400 w-full">
             <thead>
             <tr class="bg-gray-200">
-                <!-- <th class="border border-gray-400 px-2 py-1">ID</th> -->
                 <th class="border border-gray-400 px-2 py-1">Prime</th>
                 <th class="border border-gray-400 px-2 py-1">Result</th>
+                <th class="border border-gray-400 px-2 py-1">Created At</th>
+                <th class="border border-gray-400 px-2 py-1">Updated At</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="prime in primesAll" :key="prime.id">
-                <!-- <td class="border border-gray-400 px-2 py-1">@{{ prime.id }}</td> -->
                 <td class="border border-gray-400 px-2 py-1">@{{ prime.value }}</td>
                 <td class="border border-gray-400 px-2 py-1">@{{ prime.result.join(', ') }}</td>
+                <td class="border border-gray-400 px-2 py-1 text-center">@{{ formatDate(prime.created_at) }}</td>
+                <td class="border border-gray-400 px-2 py-1 text-center">@{{ formatDate(prime.updated_at) }}</td>
             </tr>
             </tbody>
         </table>
@@ -97,32 +99,50 @@
 
         <button @click="getFibonacciAll" class="bg-blue-900 text-white px-4 py-2 rounded mb-4 mt-2">Load Fibonacci</button>
 
-        <table class="border-collapse border border-gray-400 w-full">
+        <table v-if="fibonacciAll.length" class="border-collapse border border-gray-400 w-full">
             <thead>
             <tr class="bg-gray-200">
-                <!-- <th class="border border-gray-400 px-2 py-1">ID</th> -->
                 <th class="border border-gray-400 px-2 py-1">Fibonacci</th>
                 <th class="border border-gray-400 px-2 py-1">Recursive Value</th>
                 <th class="border border-gray-400 px-2 py-1">Recursive List</th>
                 <th class="border border-gray-400 px-2 py-1">Iterative Value</th>
                 <th class="border border-gray-400 px-2 py-1">Iterative List</th>
+                <th class="border border-gray-400 px-2 py-1">Created At</th>
+                <th class="border border-gray-400 px-2 py-1">Updated At</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="fib in fibonacciAll" :key="fib.id">
-                <!-- <td class="border border-gray-400 px-2 py-1">@{{ fib.id }}</td> -->
                 <td class="border border-gray-400 px-2 py-1">@{{ fib.value }}</td>
                 <td class="border border-gray-400 px-2 py-1">@{{ fib.recursive.value }}</td>
                 <td class="border border-gray-400 px-2 py-1">@{{ fib.recursive.list.join(', ') }}</td>
                 <td class="border border-gray-400 px-2 py-1">@{{ fib.iterative.value }}</td>
                 <td class="border border-gray-400 px-2 py-1">@{{ fib.iterative.list.join(', ') }}</td>
+                <td class="border border-gray-400 px-2 py-1 text-center">@{{ formatDate(fib.created_at) }}</td>
+                <td class="border border-gray-400 px-2 py-1 text-center">@{{ formatDate(fib.updated_at) }}</td>
             </tr>
             </tbody>
         </table>
 
     </div>
 
+    <div v-if="showNoRecordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click="showNoRecordModal = false">
+        <div class="bg-white rounded-lg w-96 shadow-lg">
+            <div class="px-4 py-3 border-b">
+                <h5 class="text-lg font-semibold">Information</h5>
+            </div>
 
+            <div class="px-4 py-4 text-center">
+                No records found
+            </div>
+
+            <div class="px-4 py-3 border-t text-right">
+                <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" @click="showNoRecordModal = false">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div v-if="loading" class="absolute inset-0 bg-white/70 flex items-center justify-center rounded">
         <svg class="animate-spin h-10 w-10 text-blue-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -138,7 +158,6 @@
 const { createApp, ref } = Vue;
 
 const app = createApp({
-    // components: { DataTable, Column, Button },
     setup() {
         const tab = ref('primes');
         const primeLimit = ref(50);
@@ -153,6 +172,7 @@ const app = createApp({
         const errorP = ref('');
         const errorF = ref('');
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const showNoRecordModal = ref(false);
         
         // Primes
         const primesAll = ref([]);
@@ -165,26 +185,38 @@ const app = createApp({
         const fibTotal = ref(0);
 
         const getPrimesAll = async () => {
+            loading.value = true;
             try {
                 const res = await axios.get('/api/math/all', {
                     params: { prime_page: primePage.value, per_page: 10 }
                 });
                 primesAll.value = res.data.primes.data;
                 primeTotal.value = res.data.primes.total;
+
+                showNoRecordModal.value = !res.data.primes.data || res.data.primes.data.length === 0;
             } catch (err) {
+                loading.value = false;
                 console.error(err);
+            } finally {
+                loading.value = false;
             }
         };
 
         const getFibonacciAll = async () => {
+            loading.value = true;
             try {
                 const res = await axios.get('/api/math/all', {
                     params: { fib_page: fibPage.value, per_page: 10 }
                 });
-                fibonacciAll.value = res.data.fibonacci.data;console.log("Test : ", fibonacciAll.value);
+                fibonacciAll.value = res.data.fibonacci.data;
                 fibTotal.value = res.data.fibonacci.total;
+
+                showNoRecordModal.value = !res.data.fibonacci.data || res.data.fibonacci.data.length === 0;
             } catch (err) {
+                loading.value = false;
                 console.error(err);
+            } finally {
+                loading.value = false;
             }
         };
         const primeListTemplate = (row) => row.list.join(', ');
@@ -197,6 +229,19 @@ const app = createApp({
         const onFibPage = (event) => {
             fibPage.value = event.first / event.rows + 1;
             getFibonacciAll();
+        };
+
+        const formatDate = (utc) => {
+            const d = new Date(utc);
+            return d.toLocaleString('sv-SE', {
+                timeZone: 'Asia/Kuala_Lumpur',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace('T', ' ');
         };
 
         const getPrimes = async () => {
@@ -257,11 +302,15 @@ const app = createApp({
             fibonacciList,
             iterValue,
             iterList,
+            getPrimes,
+            getFibonacci,
+
             loading,
             errorP,
             errorF,
-            getPrimes,
-            getFibonacci,
+            formatDate,
+            showNoRecordModal,
+
             primesAll, primePage, primeTotal, getPrimesAll, primeListTemplate, onPrimePage,
             fibonacciAll, fibPage, fibTotal, getFibonacciAll, fibListTemplate, onFibPage
         };

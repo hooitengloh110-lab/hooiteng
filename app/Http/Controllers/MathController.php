@@ -72,9 +72,16 @@ class MathController extends Controller
         $primePage = $request->input('prime_page', 1);
         $perPage = $request->input('per_page', 10);
 
-        $fibonacci = Fib::whereNull('deleted_at')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'fib_page', $fibPage);
-        $primes = Primes::whereNull('deleted_at')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'prime_page', $primePage);
-
+        $fibonacci = null;
+        $primes = null;
+        if($request->fib_page) {
+            $fibonacci = Fib::whereNull('deleted_at')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'fib_page', $fibPage);
+        }
+        
+        if($request->prime_page) {
+            $primes = Primes::whereNull('deleted_at')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'prime_page', $primePage);
+        }
+        
         return response()->json([
             'fibonacci' => $fibonacci,
             'primes' => $primes
